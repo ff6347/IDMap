@@ -2,14 +2,13 @@ IDMaps
 ======
 
 Creating Maps with InDesign and Basil.js  
+This is early draft. not ready for usage. If you still want to give it a try...
 
 ##Usage  
 
 [Download](http://basiljs.ch/download/) and [install](http://basiljs.ch/tutorials/installation-and-getting-started/) [Basil.js](http://basiljs.ch)  
 
-If you don't want to develop just grab the latest version from the /dist folder and run the scripts.  
-
-
+If you don't want to develop just grab the latest version from the /dist folder, place it in your basiljs user folder and run the scripts.  
 
 ##Development
 
