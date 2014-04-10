@@ -53,3 +53,35 @@ If you want to code on it use the default grunt function. It watches for changes
 ###Setup Win  
 
 tbd
+
+
+[Download](http://basiljs.ch/download/) and [install](http://basiljs.ch/tutorials/installation-and-getting-started/) [Basil.js](http://basiljs.ch)  
+
+install [node.js](http://nodejs.org)   
+
+install [Grunt](http://gruntjs.com)  
+
+clone repo  
+
+clone submodules  
+
+run grunt build-dist  
+
+or  
+
+run grunt  
+
+sorry for now this is all I can say. Will try to test it on a windows computer.  
+
+
+-----------
+
+##License  
+
+Copyright (c)  2014 Fabian "fabiantheblind" Morón Zirfas  
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software  without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions:  
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.  
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  
+
+see also [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+
