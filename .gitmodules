@@ -1,0 +1,9 @@
+[submodule "src/lib/extendscript.geo"]
+	path = src/lib/extendscript.geo
+	url = git@github.com:fabiantheblind/extendscript.geo.git
+[submodule "extendscript.csv"]
+	path = extendscript.csv
+	url = git@github.com:fabiantheblind/extendscript.csv.git
+[submodule "src/lib/extendscript.csv"]
+	path = src/lib/extendscript.csv
+	url = git@github.com:fabiantheblind/extendscript.csv.git
