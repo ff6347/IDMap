@@ -11,8 +11,8 @@ module.exports = function (grunt) {
      */
     copy: {
       script: {
-        src: "src/idmaps/main.jsx",
-        dest: "src/tmp/<%= pkg.name %>.copy.<%= pkg.version %>.jsx",
+        src: "src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx",
+        dest: "dist/<%= pkg.name %>.<%= pkg.version %>.jsx",
       }
 
     },
@@ -36,7 +36,7 @@ module.exports = function (grunt) {
     concat: {
       dist: {
         options: {
-          stripBanners: true,
+          stripBanners: false,
           banner: '\n/*! <%= pkg.name %>.jsx - v<%= pkg.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %> */\n',
           nonull: true,
@@ -46,10 +46,10 @@ module.exports = function (grunt) {
         src: [
           "src/lib/extendscript.geo/dist/extendscript.geo.id.jsx",
           "src/lib/extendscript.csv/dist/extendscript.csv.jsx",
-          "src/tmp/<%= pkg.name %>.copy.<%= pkg.version %>.jsx"
+          "src/idmaps/main.jsx"
         ],
 
-        dest: "src/tmp/<%= pkg.name %>.copy.concat.<%= pkg.version %>.jsx",
+        dest: "src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx",
       }
     },
 
@@ -65,7 +65,7 @@ module.exports = function (grunt) {
   // // This is required if you use any options.
   grunt.task.run('notify_hooks');
 
-  grunt.registerTask('build-dist', ['copy:script', 'concat:dist']);
+  grunt.registerTask('build-dist', ['concat:dist', 'copy:script']);
   // Default task.
   grunt.registerTask('default', ['watch']);
 };
