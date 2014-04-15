@@ -1,5 +1,5 @@
 
-/*! IDMaps.jsx - v0.0.1 - 2014-04-15 */
+/*! IDMaps.jsx - v0.1.0 - 2014-04-15 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -23,7 +23,7 @@
 // see also http://www.opensource.org/licenses/mit-license.php
 
 // this is src/idmap/globals.jsx
-var DEBUG = true; // just for debugging to the console
+var DEBUG = false; // just for debugging to the console
 var settings = {
   new_document: true,
   new_layer: true,
@@ -31,13 +31,30 @@ var settings = {
   projection_type: 'equirectangular',
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
-  boundingBox: {
-    ul_lat: 90,
-    ul_lon: -180,
-    lr_lat: -90,
-    lr_lon: 180
-  },
 };
+
+// this is the world bounding box
+settings.boundingBox = {
+  ul_lat: 90,
+  ul_lon: -180,
+  lr_lat: -90,
+  lr_lon: 180
+};
+
+//  set a different bbox
+// this is berlin potsdam bounding box
+//
+// settings.boundingBox = {
+//   ul_lon: 12.9638671875, // the most left point
+//   ul_lat: 52.70468296296834, // the most top point
+//   lr_lat: 52.338695481504814, // the most bottom point
+//   lr_lon: 13.8153076171875, // the most right point
+// };
+
+
+/*****************************************
+END OF SETTINGS in src/idmap/globals.jsx
+*****************************************/
 
 /*! extendscript.prototypes.jsx - v0.0.1 - 2014-04-15 */
 // A collection of usefull prototypes
@@ -312,8 +329,8 @@ Geo.projections.ind.equirectangular = {
     var h = doc.documentPreferences.pageHeight;
     var xoff = (w / 2);
     var yoff = (h / 2);
-    var x = ((latlng.lng)) + xoff;
-    var y = ((latlng.lat * -1)) + yoff;
+    var x = (latlng.lng) + xoff;
+    var y = (latlng.lat * -1) + yoff;
     return {
       "x": x,
       "y": y
@@ -693,7 +710,7 @@ var doc_builder = function(){
   if(settings.new_document){
     doc = app.documents.add({
       documentPreferences:{
-        pageWidth:300,
+        pageWidth:360,
         pageHeight:180,
         facingPages:false
         }});
@@ -710,31 +727,108 @@ var doc_builder = function(){
  * Draws polygons/shapes
  * @param  {the page to draw onto} page = Page
  * @param  {the path to draw} path an array of coordiantes on the page [[x,y],[x,y],[x,y],...]
- * @return {nothing for now}
+ * @return {Polygon}
  */
-var polygon_drawer = function(page, path){
+var polygon_drawer = function(page, path, layer){
   // this would be the way in extendscript only
-  var poly = page.polygons.add();
+  var poly = page.polygons.add({itemLayer:layer});
   poly.paths[0].entirePath = path;
+  return poly; // for styling
+};
+/**
+ * [polygon_styling description]
+ * @return {[type]} [description]
+ */
 
+var create_objectstyles = function(doc) {
+  var objectstyle = doc.objectStyles.add();
 
+  objectstyle.properties = {
+    name: "basic",
+    fillColor: doc.swatches.item(3),
+    /* could also be doc.swatches[3] */
+    fillTint: 50,
+    strokeColor: doc.swatches.item(5),
+    strokeTint: 70,
+    strokeWeight: 0.5,
+
+    // bottomLeftCornerOption: CornerOptions.FANCY_CORNER,
+    transparencySettings: {
+      blendingSettings: {
+        opacity: 50,
+        blendMode: BlendMode.COLOR
+      }
+    }
+  };
+};
+
+var polygon_styling = function(doc, polygons) {
+  for (var i = 0; i < polygons.length; i++) {
+    var polygon = polygons[i];
+    // polygon.properties = {
+    //   fillColor: doc.swatches[3],
+    //   fillTint: 50,
+    //   strokeColor: doc.swatches[5],
+    //   strokeTint: 70,
+    //   strokeWeight: 1
+    // };
+
+    // ifyou like to use object styles use it like this:
+
+    polygon.appliedObjectStyle = doc.objectStyles.item('basic');
+
+    // could also be written like this
+    // polygon.fillColor = doc.swatches[3];
+    // polygon.fillTint = 50;
+    // polygon.strokeColor = doc.swatches[5];
+    // polygon.strokeTint = 70;
+    // polygon.strokeWeight = 1;
+  }
 };
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-var location_transformer = function(doc, page, locations){
-            var latlng = {
-              "lng": locations[0],
-              "lat": locations[1]
-            };
-            var xy = null;
-            if ((settings.projection_type)
-              .localeCompare('equirectangular') === 0) {
-              xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-            }// end of projection type check
-            return xy;
+var new_location_transformer = function(doc, page, locations) {
+  //  float x = width * ((BPM_westlon - loc.lon) / (BPM_westlon - BPM_eastlon));
+  // float y = ( height * ((BPM_northlat - loc.lat)/(BPM_northlat - BPM_southlat)));
+  // This is still in an experimanteal state
+  // should be merged into the extendscript.geo lib
+  var w = doc.documentPreferences.pageWidth;
+  var h = doc.documentPreferences.pageHeight;
+    var latlng = {
+    "lng": locations[0],
+    "lat": locations[1]
+  };
+  //   boundingBox: {
+  //   ul_lat: 90,
+  //   ul_lon: -180,
+  //   lr_lat: -90,
+  //   lr_lon: 180
+  // },
+  var x = w *  ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
+  var y =  ( h * ((settings.boundingBox.ul_lat - latlng.lat)/(settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
+  return  {
+    "x": x,
+      "y": y};
+
+};
+
+var location_transformer = function(doc, page, locations) {
+  var latlng = {
+    "lng": locations[0],
+    "lat": locations[1]
+  };
+  var xy = null;
+  if ((settings.projection_type)
+    .localeCompare('equirectangular') === 0) {
+    xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
+  } // end of projection type check
+  // $.writeln(xy.x + " <--x || y--> " +xy.y);
+  return xy;
+
 };
 var geo_to_id_generator = function(doc, page) {
+
 
   var geojson = idmap_countries; // this is not necessary but usefull to have in here.
 
@@ -745,56 +839,79 @@ var geo_to_id_generator = function(doc, page) {
     var type = country.geometry.type;
     var coords = country.geometry.coordinates;
     // we need to check if we have polygons or mulitpolygon features
-      if(DEBUG){
-    $.writeln("Country: " + name);
-    $.writeln("Geo Json feature type: " + type);
+    if (DEBUG) {
+      $.writeln("Country: " + name);
+      $.writeln("Geo Json feature type: " + type);
 
-      }
+    }
 
     // if (reg.test(type) === true) {
-          var path = [];
     if (type.localeCompare('MultiPolygon') === 0) {
       // Houston we have a Multipolygon
       for (var j = 0; j < coords.length; j++) {
         for (var k = 0; k < coords[j].length; k++) {
           // now loop all lat lon coordiantes
+          var multipolygon_path = [];
           for (var l = 0; l < coords[j][k].length; l++) {
-            var mp_xy = location_transformer(doc, page, coords[j][k][l]);
-            path.push([mp_xy.x, mp_xy.y]);
-            if(DEBUG){
+            var mp_xy = new_location_transformer(doc, page, coords[j][k][l]);
+            multipolygon_path.push([mp_xy.x, mp_xy.y]);
+            if (DEBUG) {
 
               // $.writeln("Path:" + path + "\n\n"); // this takes a long time to execute
               // $.writeln("Path has " + path.length + " points");
             }
-          }// end of l loop
+          } // end of l loop
+          paths.push(multipolygon_path);
         } // end of k loop
-      }// end of j loop
-      paths.push(path);
+      } // end of j loop
     } else {
       // nah. just a polygon
-
-      for(var m = 0; m < coords[0].length;m++){
-        var p_xy = location_transformer(doc, page, coords[0][m]);
-            path.push([p_xy.x, p_xy.y]);
-      }// end of m loop
-
-    }// end of else polygon
-  }// end of i loop
-  if(DEBUG) $.writeln(paths);
+      var polygon_path = [];
+      for (var m = 0; m < coords[0].length; m++) {
+        var p_xy = new_location_transformer(doc, page, coords[0][m]);
+        polygon_path.push([p_xy.x, p_xy.y]);
+      } // end of m loop
+      paths.push(polygon_path);
+    } // end of else polygon
+  } // end of i loop
+  if (DEBUG) $.writeln(paths);
+  return paths;
 };
-// This is main.jsx
+/*************************************************
+This is the main function. all
+the execution of all other functions happen in here
+// This is src/idmap/main.jsx
+*************************************************/
 
-  var testpath = [
-    [10, 10],
-    [20, 20],
-    [100, 20],
-    [20, 5]
-  ];
-var draw = function () {
-  var doc = doc_builder();
-  var canvas = doc.pages[0];
-  var paths = geo_to_id_generator(doc, canvas);
-  polygon_drawer(canvas, testpath);
+var draw = function() {
+  /**
+   * see file src/idmap/document.jsx
+   */
+  var doc = doc_builder(); // create a basic doc
+  var canvas = doc.pages[0]; // select the first page
+  /**
+   * see file src/idmap/geo.jsx
+   * @type {[type]}
+   */
+  var paths = geo_to_id_generator(doc, canvas); // transform geo coordinates to ID coordinates
+  var layer = doc.layers.add({
+    name: settings.new_layer_name
+  }); // add a layer
+  var polygons = []; // for all the polygons
+  // loop the paths we have
+  for (var i = 0; i < paths.length; i++) {
+    /**
+     * see file src/idmap/polygon.jsx
+     */
+    var poly = polygon_drawer(canvas, paths[i], layer);
+    polygons.push(poly); // push them to the array
+  }
+  /**
+   * see file src/idmap/styling.jsx
+   */
+  create_objectstyles(doc); // create some object styles
+  polygon_styling(doc, polygons); // style them
+  return 'done';
 };
 
-draw();
+draw();// now run that thang!

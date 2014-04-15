@@ -1,5 +1,5 @@
 
-/*! IDMaps.jsx - v0.0.2 - 2014-04-15 */
+/*! IDMaps.jsx - v0.0.3 - 2014-04-15 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
