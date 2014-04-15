@@ -1,5 +1,5 @@
 {
-  "name": "IDMaps",
+  "name": "IDMap",
   "version": "0.1.0",
   "description": "creating maps in InDesign",
   "main": "Gruntfile.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/fabiantheblind/IDMaps.git"
+    "url": "git://github.com/fabiantheblind/IDMap.git"
   },
   "keywords": [
     "Maps",
@@ -19,9 +19,9 @@
   "author": "fabiantheblind",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fabiantheblind/IDMaps/issues"
+    "url": "https://github.com/fabiantheblind/IDMap/issues"
   },
-  "homepage": "https://github.com/fabiantheblind/IDMaps",
+  "homepage": "https://github.com/fabiantheblind/IDMap",
   "devDependencies": {
     "grunt": "~0.4.4",
     "load-grunt-tasks": "~0.4.0",
