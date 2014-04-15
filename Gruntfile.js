@@ -13,6 +13,11 @@ module.exports = function (grunt) {
       script: {
         src: "src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx",
         dest: "dist/<%= pkg.name %>.<%= pkg.version %>.jsx",
+      },
+      'geo-json': {
+        src: "src/lib/world.geo.json/countries.geo.json",
+
+        dest: "src/tmp/countries.geo.min.json",
       }
 
     },
@@ -20,15 +25,22 @@ module.exports = function (grunt) {
     /**
      * wrap into anonymous function
      */
-    // wrap: {
-    //   script: {
-    //     src: ['src/tmp/<%= pkg.name %>.copy.concat.<%= pkg.version %>.jsx'],
-    //     dest: 'dist/<%= pkg.name %>.build.<%= pkg.version %>.jsx',
-    //     options: {
-    //       wrapper: ['(function(thisObj) {', '})(this);\n']
-    //     },
-    //   }
-    // },
+    wrap: {
+      'geo-json': {
+        src: ['src/tmp/countries.geo.min.json'],
+        dest: 'src/tmp/countries.geo.min.wrap.js',
+        options: {
+          wrapper: ['var idmap_countries = ', ';\n']
+        },
+      },
+      // script: {
+      //   src: ['src/tmp/<%= pkg.name %>.copy.concat.<%= pkg.version %>.jsx'],
+      //   dest: 'dist/<%= pkg.name %>.build.<%= pkg.version %>.jsx',
+      //   options: {
+      //     wrapper: ['(function(thisObj) {', '})(this);\n']
+      //   },
+      // }
+    },
     /**
      * concat all the pieces into whan file ready for wrapping
      * @type {Object}
@@ -44,9 +56,15 @@ module.exports = function (grunt) {
         },
 
         src: [
+          "src/idmap/license.jsx",
+          "src/idmap/globals.jsx",
           "src/lib/extendscript.geo/dist/extendscript.geo.id.jsx",
           "src/lib/extendscript.csv/dist/extendscript.csv.jsx",
-          "src/idmaps/main.jsx"
+          "src/tmp/countries.geo.min.wrap.js",
+          "src/idmap/document.jsx",
+          "src/idmap/polygon.jsx",
+          "src/idmap/geo.jsx",
+          "src/idmap/main.jsx"
         ],
 
         dest: "src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx",
@@ -54,8 +72,8 @@ module.exports = function (grunt) {
     },
 
     watch: {
-      files: ['src/idmaps/*.jsx', 'src/idmaps/*.js', "src/lib/extendscript.geo/src/*", "src/lib/extendscript.csv/src/*"],
-      tasks: ['copy:script', 'concat:dist', 'wrap:script']
+      files: ['src/idmap/*.jsx', 'src/idmap/*.js', "src/lib/extendscript.geo/src/*", "src/lib/extendscript.csv/src/*"],
+      tasks: ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'copy:script']
     }
 
   });
@@ -65,7 +83,7 @@ module.exports = function (grunt) {
   // // This is required if you use any options.
   grunt.task.run('notify_hooks');
 
-  grunt.registerTask('build-dist', ['concat:dist', 'copy:script']);
+  grunt.registerTask('build-dist', ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'copy:script']);
   // Default task.
   grunt.registerTask('default', ['watch']);
 };

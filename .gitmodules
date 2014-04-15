@@ -7,3 +7,9 @@
 [submodule "src/lib/extendscript.csv"]
 	path = src/lib/extendscript.csv
 	url = git@github.com:fabiantheblind/extendscript.csv.git
+[submodule "src/lib/world.geo.json"]
+	path = src/lib/world.geo.json
+	url = https://github.com/johan/world.geo.json.git
+[submodule "src/lib/extendscript.prototypes"]
+	path = src/lib/extendscript.prototypes
+	url = git@github.com:fabiantheblind/extendscript.prototypes.git
