@@ -64,6 +64,7 @@ module.exports = function (grunt) {
           "src/tmp/countries.geo.min.wrap.js",
           "src/idmap/document.jsx",
           "src/idmap/polygon.jsx",
+          "src/idmap/styling.jsx",
           "src/idmap/geo.jsx",
           "src/idmap/main.jsx"
         ],

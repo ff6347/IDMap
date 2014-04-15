@@ -1,18 +1,43 @@
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-var location_transformer = function(doc, page, locations){
-            var latlng = {
-              "lng": locations[0],
-              "lat": locations[1]
-            };
-            var xy = null;
-            if ((settings.projection_type)
-              .localeCompare('equirectangular') === 0) {
-              xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-            }// end of projection type check
-            // $.writeln(xy.x + " <--x || y--> " +xy.y);
-            return xy;
+var new_location_transformer = function(doc, page, locations) {
+  //  float x = width * ((BPM_westlon - loc.lon) / (BPM_westlon - BPM_eastlon));
+  // float y = ( height * ((BPM_northlat - loc.lat)/(BPM_northlat - BPM_southlat)));
+  // This is still in an experimanteal state
+  // should be merged into the extendscript.geo lib
+  var w = doc.documentPreferences.pageWidth;
+  var h = doc.documentPreferences.pageHeight;
+    var latlng = {
+    "lng": locations[0],
+    "lat": locations[1]
+  };
+  //   boundingBox: {
+  //   ul_lat: 90,
+  //   ul_lon: -180,
+  //   lr_lat: -90,
+  //   lr_lon: 180
+  // },
+  var x = w *  ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
+  var y =  ( h * ((settings.boundingBox.ul_lat - latlng.lat)/(settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
+  return  {
+    "x": x,
+      "y": y};
+
+};
+
+var location_transformer = function(doc, page, locations) {
+  var latlng = {
+    "lng": locations[0],
+    "lat": locations[1]
+  };
+  var xy = null;
+  if ((settings.projection_type)
+    .localeCompare('equirectangular') === 0) {
+    xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
+  } // end of projection type check
+  // $.writeln(xy.x + " <--x || y--> " +xy.y);
+  return xy;
 
 };
 var geo_to_id_generator = function(doc, page) {
@@ -27,11 +52,11 @@ var geo_to_id_generator = function(doc, page) {
     var type = country.geometry.type;
     var coords = country.geometry.coordinates;
     // we need to check if we have polygons or mulitpolygon features
-      if(DEBUG){
-    $.writeln("Country: " + name);
-    $.writeln("Geo Json feature type: " + type);
+    if (DEBUG) {
+      $.writeln("Country: " + name);
+      $.writeln("Geo Json feature type: " + type);
 
-      }
+    }
 
     // if (reg.test(type) === true) {
     if (type.localeCompare('MultiPolygon') === 0) {
@@ -41,27 +66,27 @@ var geo_to_id_generator = function(doc, page) {
           // now loop all lat lon coordiantes
           var multipolygon_path = [];
           for (var l = 0; l < coords[j][k].length; l++) {
-            var mp_xy = location_transformer(doc, page, coords[j][k][l]);
+            var mp_xy = new_location_transformer(doc, page, coords[j][k][l]);
             multipolygon_path.push([mp_xy.x, mp_xy.y]);
-            if(DEBUG){
+            if (DEBUG) {
 
               // $.writeln("Path:" + path + "\n\n"); // this takes a long time to execute
               // $.writeln("Path has " + path.length + " points");
             }
-          }// end of l loop
-        paths.push(multipolygon_path);
+          } // end of l loop
+          paths.push(multipolygon_path);
         } // end of k loop
-      }// end of j loop
+      } // end of j loop
     } else {
       // nah. just a polygon
       var polygon_path = [];
-      for(var m = 0; m < coords[0].length;m++){
-        var p_xy = location_transformer(doc, page, coords[0][m]);
-            polygon_path.push([p_xy.x, p_xy.y]);
-      }// end of m loop
+      for (var m = 0; m < coords[0].length; m++) {
+        var p_xy = new_location_transformer(doc, page, coords[0][m]);
+        polygon_path.push([p_xy.x, p_xy.y]);
+      } // end of m loop
       paths.push(polygon_path);
-    }// end of else polygon
-  }// end of i loop
-  if(DEBUG) $.writeln(paths);
+    } // end of else polygon
+  } // end of i loop
+  if (DEBUG) $.writeln(paths);
   return paths;
 };
