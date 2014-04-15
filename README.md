@@ -1,5 +1,5 @@
-IDMaps
-======
+IDMap
+=====
 
 Creating Maps with InDesign and Basil.js  
 This is early draft. not ready for usage. If you still want to give it a try...
@@ -29,7 +29,7 @@ Install the [Grunt](http://gruntjs.com) command line interface with [npm](https:
 Clone the repo with git (you use [git](http://git-scm.com) right?) and `cd` into it  
 
     cd /Users/$USER/Documents/basiljs/user
-    git clone git@github.com:fabiantheblind/IDMaps.git && cd IDMaps  
+    git clone git@github.com:fabiantheblind/IDMap.git && cd IDMap  
 
 Initialize all submodules and then update  
 
