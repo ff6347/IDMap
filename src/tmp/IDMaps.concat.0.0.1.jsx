@@ -39,6 +39,100 @@ var settings = {
   },
 };
 
+/*! extendscript.prototypes.jsx - v0.0.1 - 2014-04-15 */
+// A collection of usefull prototypes
+// Copyright (c) 2014 Fabian Moron Zirfas
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+/**
+ * This is Prototypes.jsx
+ */
+
+var lambda = function (l) {
+  var fn = l.match(/\((.*)\)\s*=>\s*(.*)/);
+  var p = [];
+  var b = "";
+
+  if (fn.length > 0) fn.shift();
+  if (fn.length > 0) b = fn.pop();
+  if (fn.length > 0) p = fn.pop()
+    .replace(/^\s*|\s(?=\s)|\s*$|,/g, '')
+    .split(' ');
+
+  // prepend a return if not already there.
+  fn = ((!/\s*return\s+/.test(b)) ? "return " : "") + b;
+
+  p.push(fn);
+
+  try {
+    return Function.apply({}, p);
+  } catch (e) {
+    return null;
+  }
+};
+
+/**
+ * from here
+ * http://www.paulfree.com/28/javascript-array-filtering/#more-28
+ */
+if (typeof (Array.prototype.where) === 'undefined') {
+  Array.prototype.where = function (f) {
+    var fn = f;
+    // if type of parameter is string
+    if (typeof f == "string")
+    // try to make it into a function
+      if ((fn = lambda(fn)) === null)
+      // if fail, throw exception
+        throw "Syntax error in lambda string: " + f;
+      // initialize result array
+    var res = [];
+    var l = this.length;
+    // set up parameters for filter function call
+    var p = [0, 0, res];
+    // append any pass-through parameters to parameter array
+    for (var i = 1; i < arguments.length; i++) {
+      p.push(arguments[i]);
+    }
+    // for each array element, pass to filter function
+    for (var j = 0; j < l; j++) {
+      // skip missing elements
+      if (typeof this[j] == "undefined") continue;
+      // param1 = array element
+      p[0] = this[j];
+      // param2 = current indeex
+      p[1] = j;
+      // call filter function. if return true, copy element to results
+      if ( !! fn.apply(this, p)) res.push(this[j]);
+    }
+    // return filtered result
+    return res;
+  };
+}
+if (typeof (String.prototype.localeCompare) === 'undefined') {
+  String.prototype.localeCompare = function (str, locale, options) {
+    return ((this == str) ? 0 : ((this > str) ? 1 : -1));
+  };
+}
+
+
 /*! extendscript.geo.jsx - v0.0.1 - 2014-04-15 */
 /*!
  * This is Geo.js
@@ -628,27 +722,7 @@ var polygon_drawer = function(page, path){
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-var geo_generator = function(doc, page) {
-
-  var geojson = idmap_countries; // this is not necessary but usefull to have in here.
-
-  var paths = [];
-  for (var i = 0; i < geojson.features.length; i++) {
-    var country = GEOJson.features[i];
-    var name = country.properties.name;
-    var type = country.geometry.type;
-    var coords = country.geometry.coordinates;
-    // we need t ochekc if we have polygons or mulitpolygon features
-    var pattern = "MultiPolygon";
-    var reg = new RegExp(pattern, "g");
-    if (reg.test(type) === true) {
-      // Houston we have a Multipolygon
-      for (var j = 0; j < coords.length; j++) {
-        for (var k = 0; k < coords[j].length; k++) {
-          var path = [];
-          // now loop all lat lon coordiantes
-          for (var l = 0; l < coords[j][k].length; l++) {
-            var locations = coords[j][k][l];
+var location_transformer = function(doc, page, locations){
             var latlng = {
               "lng": locations[0],
               "lat": locations[1]
@@ -656,18 +730,57 @@ var geo_generator = function(doc, page) {
             var xy = null;
             if ((settings.projection_type)
               .localeCompare('equirectangular') === 0) {
-              xy = Geo.projections.ind.equirectangular.toAESpace(doc, latlng, page);
+              xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
+            }// end of projection type check
+            return xy;
+};
+var geo_to_id_generator = function(doc, page) {
 
+  var geojson = idmap_countries; // this is not necessary but usefull to have in here.
 
-            }
+  var paths = [];
+  for (var i = 0; i < geojson.features.length; i++) {
+    var country = geojson.features[i];
+    var name = country.properties.name;
+    var type = country.geometry.type;
+    var coords = country.geometry.coordinates;
+    // we need to check if we have polygons or mulitpolygon features
+      if(DEBUG){
+    $.writeln("Country: " + name);
+    $.writeln("Geo Json feature type: " + type);
 
-          }
-        }
       }
+
+    // if (reg.test(type) === true) {
+          var path = [];
+    if (type.localeCompare('MultiPolygon') === 0) {
+      // Houston we have a Multipolygon
+      for (var j = 0; j < coords.length; j++) {
+        for (var k = 0; k < coords[j].length; k++) {
+          // now loop all lat lon coordiantes
+          for (var l = 0; l < coords[j][k].length; l++) {
+            var mp_xy = location_transformer(doc, page, coords[j][k][l]);
+            path.push([mp_xy.x, mp_xy.y]);
+            if(DEBUG){
+
+              // $.writeln("Path:" + path + "\n\n"); // this takes a long time to execute
+              // $.writeln("Path has " + path.length + " points");
+            }
+          }// end of l loop
+        } // end of k loop
+      }// end of j loop
+      paths.push(path);
     } else {
-      // nah just a polygon
-    }
-  }
+      // nah. just a polygon
+
+      for(var m = 0; m < coords[0].length;m++){
+        var p_xy = location_transformer(doc, page, coords[0][m]);
+            path.push([p_xy.x, p_xy.y]);
+      }// end of m loop
+
+    }// end of else polygon
+  }// end of i loop
+  if(DEBUG) $.writeln(paths);
 };
 // This is main.jsx
 
@@ -680,6 +793,7 @@ var geo_generator = function(doc, page) {
 var draw = function () {
   var doc = doc_builder();
   var canvas = doc.pages[0];
+  var paths = geo_to_id_generator(doc, canvas);
   polygon_drawer(canvas, testpath);
 };
 

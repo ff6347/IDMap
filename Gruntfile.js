@@ -58,6 +58,7 @@ module.exports = function (grunt) {
         src: [
           "src/idmap/license.jsx",
           "src/idmap/globals.jsx",
+          "src/lib/extendscript.prototypes/dist/extendscript.prototypes.0.0.1.jsx",
           "src/lib/extendscript.geo/dist/extendscript.geo.id.jsx",
           "src/lib/extendscript.csv/dist/extendscript.csv.jsx",
           "src/tmp/countries.geo.min.wrap.js",

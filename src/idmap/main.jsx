@@ -9,7 +9,12 @@
 var draw = function () {
   var doc = doc_builder();
   var canvas = doc.pages[0];
-  polygon_drawer(canvas, testpath);
+  var paths = geo_to_id_generator(doc, canvas);
+  for(var i = 0; i < paths.length;i++){
+    polygon_drawer(canvas, paths[i]);
+  }
+  return 'done';
 };
 
 draw();
+

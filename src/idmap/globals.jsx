@@ -1,5 +1,5 @@
 // this is src/idmap/globals.jsx
-var DEBUG = true; // just for debugging to the console
+var DEBUG = false; // just for debugging to the console
 var settings = {
   new_document: true,
   new_layer: true,
