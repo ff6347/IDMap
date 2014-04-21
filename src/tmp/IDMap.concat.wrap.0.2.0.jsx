@@ -38,7 +38,7 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type: 3,
+  projection_type: 5,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
@@ -64,7 +64,6 @@ settings.boundingBox = {
 //   lr_lon: 13.8153076171875, // the most right point
 // };
 //
-
 
 /*****************************************************
 Below this line is advanced editing.
