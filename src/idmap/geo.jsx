@@ -32,10 +32,29 @@ var location_transformer = function(doc, page, locations) {
     "lat": locations[1]
   };
   var xy = null;
-  if ((settings.projection_type)
+  if ((settings.ptype)
     .localeCompare('equirectangular') === 0) {
     xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-  } // end of projection type check
+  } else if((settings.ptype)
+    .localeCompare('mercator') === 0){
+    xy = Geo.projections.ind.mercator.toIDPage(doc, latlng, page);
+  } else if((settings.ptype)
+    .localeCompare('gallpeters') === 0){
+    xy = Geo.projections.ind.gallpeters.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('hammer') === 0){
+    xy = Geo.projections.ind.hammer.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('sinusoidal') === 0){
+    xy = Geo.projections.ind.sinusoidal.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('aitoff') === 0){
+    xy = Geo.projections.ind.aitoff.toIDPage(doc, latlng, page);
+  }else{
+
+    alert("Could not identify the selected projection type");
+    return;
+  }// end of projection type check
   // $.writeln(xy.x + " <--x || y--> " +xy.y);
   return xy;
 
@@ -66,7 +85,9 @@ var geo_to_id_generator = function(doc, page) {
           // now loop all lat lon coordiantes
           var multipolygon_path = [];
           for (var l = 0; l < coords[j][k].length; l++) {
-            var mp_xy = new_location_transformer(doc, page, coords[j][k][l]);
+
+            var mp_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[j][k][l]) : location_transformer(doc, page, coords[j][k][l]);
+
             multipolygon_path.push([mp_xy.x, mp_xy.y]);
             if (DEBUG) {
 
@@ -81,7 +102,8 @@ var geo_to_id_generator = function(doc, page) {
       // nah. just a polygon
       var polygon_path = [];
       for (var m = 0; m < coords[0].length; m++) {
-        var p_xy = new_location_transformer(doc, page, coords[0][m]);
+       var p_xy =  settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
+        // var p_xy =  new_location_transformer(doc, page, coords[0][m]);
         polygon_path.push([p_xy.x, p_xy.y]);
       } // end of m loop
       paths.push(polygon_path);

@@ -6,8 +6,8 @@ var doc_builder = function(){
   if(settings.new_document){
     doc = app.documents.add({
       documentPreferences:{
-        pageWidth:360,
-        pageHeight:180,
+        pageWidth: settings.docWidth,
+        pageHeight: settings.docHeight,
         facingPages:false
         }});
   }else{

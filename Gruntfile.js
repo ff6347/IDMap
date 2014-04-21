@@ -11,7 +11,7 @@ module.exports = function (grunt) {
      */
     copy: {
       script: {
-        src: "src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx",
+        src: "src/tmp/<%= pkg.name %>.concat.wrap.<%= pkg.version %>.jsx",
         dest: "dist/<%= pkg.name %>.<%= pkg.version %>.jsx",
       },
       'geo-json': {
@@ -33,12 +33,15 @@ module.exports = function (grunt) {
           wrapper: ['var idmap_countries = ', ';\n']
         },
       },
+      'anonymous': {
+        src: ['src/tmp/<%= pkg.name %>.concat.<%= pkg.version %>.jsx'],
+        dest: 'src/tmp/<%= pkg.name %>.concat.wrap.<%= pkg.version %>.jsx',
+        options: {
+          wrapper: ['(function(thisObj) {', '})(this);\n']
+        },
+
+      }
       // script: {
-      //   src: ['src/tmp/<%= pkg.name %>.copy.concat.<%= pkg.version %>.jsx'],
-      //   dest: 'dist/<%= pkg.name %>.build.<%= pkg.version %>.jsx',
-      //   options: {
-      //     wrapper: ['(function(thisObj) {', '})(this);\n']
-      //   },
       // }
     },
     /**
@@ -75,7 +78,7 @@ module.exports = function (grunt) {
 
     watch: {
       files: ['src/idmap/*.jsx', 'src/idmap/*.js', "src/lib/extendscript.geo/src/*", "src/lib/extendscript.csv/src/*"],
-      tasks: ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'copy:script']
+      tasks: ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'wrap:anonymous', 'copy:script']
     }
 
   });
@@ -85,7 +88,7 @@ module.exports = function (grunt) {
   // // This is required if you use any options.
   grunt.task.run('notify_hooks');
 
-  grunt.registerTask('build-dist', ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'copy:script']);
+  grunt.registerTask('build-dist', ['copy:geo-json', 'wrap:geo-json', 'concat:dist', 'wrap:anonymous', 'copy:script']);
   // Default task.
   grunt.registerTask('default', ['watch']);
 };

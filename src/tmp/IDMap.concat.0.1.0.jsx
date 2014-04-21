@@ -1,5 +1,5 @@
 
-/*! IDMap.jsx - v0.1.0 - 2014-04-15 */
+/*! IDMap.jsx - v0.1.0 - 2014-04-21 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -23,18 +23,29 @@
 // see also http://www.opensource.org/licenses/mit-license.php
 
 // this is src/idmap/globals.jsx
-var DEBUG = false; // just for debugging to the console
+var DEBUG = true; // just for debugging to the console
 var settings = {
   new_document: true,
   new_layer: true,
   new_layer_name: 'map',
-  projection_type: 'equirectangular',
+  /*
+  select the projection type you want
+  equirectangular = 0
+  mercator = 1
+  gallpeters = 2
+  hammer = 3
+  sinusoidal = 4
+  aitoff = 5
+   */
+  projection_type: 3,
+
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
 };
 
 // this is the world bounding box
 settings.boundingBox = {
+  zoomed: false,
   ul_lat: 90,
   ul_lon: -180,
   lr_lat: -90,
@@ -45,112 +56,96 @@ settings.boundingBox = {
 // this is berlin potsdam bounding box
 //
 // settings.boundingBox = {
+//    zoomed: true,
 //   ul_lon: 12.9638671875, // the most left point
 //   ul_lat: 52.70468296296834, // the most top point
 //   lr_lat: 52.338695481504814, // the most bottom point
 //   lr_lon: 13.8153076171875, // the most right point
 // };
+//
 
 
+/*****************************************************
+Below this line is advanced editing.
+Only change things if you are sure what you are doing
+******************************************************/
+
+
+settings.projections  = [
+      {
+        name: 'equirectangular',
+        value: 0,
+        w: 360,
+        h: 180
+      }, {
+        name: 'mercator',
+        value: 1,
+        w: 360,
+        h: 360
+      }, {
+        name: 'gallpeters',
+        value: 2,
+        w: 360,
+        h: 229
+      }, {
+        name: 'hammer',
+        value: 3,
+        w: 360,
+        h: 180
+      }, {
+        name: 'sinusoidal',
+        value: 4,
+        w: 360,
+        h: 180
+      }, {
+        name: 'aitoff',
+        value: 5,
+        w: 360,
+        h: 180
+      }
+      ];
+
+// calc the right projection
+//
+settings.gotTheType = false;
+settings.ptype = 0;
+settings.docWidth = 0;
+settings.docHeight = 0;
+
+    for (var pndx = 0; pndx < settings.projections.length; pndx++) {
+      if (settings.projection_type === settings.projections[pndx].value) {
+        settings.ptype = settings.projections[pndx].name;
+        settings.docWidth = settings.projections[pndx].w;
+        settings.docHeight = settings.projections[pndx].h;
+        settings.gotTheType = true;
+        break;
+      }
+    }
+
+
+if(DEBUG){
+  $.writeln("Selected Projection is: " + settings.ptype);
+  $.writeln("Doc will be : " + settings.docWidth + " || " + settings.docHeight);
+}
+
+if(settings.gotTheType === false){
+
+var msg = "There was an error getting the right projection type. Did you use one of these?\n";
+
+  for(var pt = 0; pt < settings.projections.length;pt++){
+    var tmpstr = settings.projections[pt].toSource();
+    tmpstr = tmpstr.replace(new RegExp(",","g"),"\t");
+    msg+=tmpstr +"\n";
+  }
+  alert(msg);
+  return;
+}
+// if the doc comes out with a width and height of 0 there was an error here
 /*****************************************
 END OF SETTINGS in src/idmap/globals.jsx
 *****************************************/
 
-/*! extendscript.prototypes.jsx - v0.0.1 - 2014-04-15 */
-// A collection of usefull prototypes
-// Copyright (c) 2014 Fabian Moron Zirfas
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-
-/**
- * This is Prototypes.jsx
- */
-
-var lambda = function (l) {
-  var fn = l.match(/\((.*)\)\s*=>\s*(.*)/);
-  var p = [];
-  var b = "";
-
-  if (fn.length > 0) fn.shift();
-  if (fn.length > 0) b = fn.pop();
-  if (fn.length > 0) p = fn.pop()
-    .replace(/^\s*|\s(?=\s)|\s*$|,/g, '')
-    .split(' ');
-
-  // prepend a return if not already there.
-  fn = ((!/\s*return\s+/.test(b)) ? "return " : "") + b;
-
-  p.push(fn);
-
-  try {
-    return Function.apply({}, p);
-  } catch (e) {
-    return null;
-  }
-};
-
-/**
- * from here
- * http://www.paulfree.com/28/javascript-array-filtering/#more-28
- */
-if (typeof (Array.prototype.where) === 'undefined') {
-  Array.prototype.where = function (f) {
-    var fn = f;
-    // if type of parameter is string
-    if (typeof f == "string")
-    // try to make it into a function
-      if ((fn = lambda(fn)) === null)
-      // if fail, throw exception
-        throw "Syntax error in lambda string: " + f;
-      // initialize result array
-    var res = [];
-    var l = this.length;
-    // set up parameters for filter function call
-    var p = [0, 0, res];
-    // append any pass-through parameters to parameter array
-    for (var i = 1; i < arguments.length; i++) {
-      p.push(arguments[i]);
-    }
-    // for each array element, pass to filter function
-    for (var j = 0; j < l; j++) {
-      // skip missing elements
-      if (typeof this[j] == "undefined") continue;
-      // param1 = array element
-      p[0] = this[j];
-      // param2 = current indeex
-      p[1] = j;
-      // call filter function. if return true, copy element to results
-      if ( !! fn.apply(this, p)) res.push(this[j]);
-    }
-    // return filtered result
-    return res;
-  };
-}
-if (typeof (String.prototype.localeCompare) === 'undefined') {
-  String.prototype.localeCompare = function (str, locale, options) {
-    return ((this == str) ? 0 : ((this > str) ? 1 : -1));
-  };
-}
-
-
-/*! extendscript.geo.jsx - v0.0.1 - 2014-04-15 */
+/*! extendscript.geo.jsx - v0.0.1 - 2014-04-21 */
 /*!
  * This is Geo.js
   * A collection of functions for calculating geo locations.
@@ -324,6 +319,7 @@ Geo.projections = {
 // END OF Projections.js
 Geo.projections.ind = function () {};
 Geo.projections.ind.equirectangular = {
+  "name": "equirectangular",
   toIDPage: function (doc, latlng, page) {
     var w = doc.documentPreferences.pageWidth;
     var h = doc.documentPreferences.pageHeight;
@@ -339,45 +335,110 @@ Geo.projections.ind.equirectangular = {
 };
 /** @see http://en.wikipedia.org/wiki/Mercator_projection */
 Geo.projections.ind.mercator = {
+  name: "mercator",
   toIDPage: function (doc, latlng, page) {
+    var w = doc.documentPreferences.pageWidth;
+    var h = doc.documentPreferences.pageHeight;
+    // taken from here http://stackoverflow.com/questions/1019997/convert-lat-longs-to-x-y-co-ordinates/1020681#1020681
+    // Mercator projection
+    // longitude: just scale and shift
+    var x = (180 + latlng.lng) * (w / 360);
 
-    // return {
-    //   "x": x,
-    //   "y": y
-    // };
+    // latitude: using the Mercator projection
+    var latrad = Geo.Utilities.radians(latlng.lat); // convert from degrees to radians
+
+    var mercN = Math.log(Math.tan((Math.PI / 4) + (latrad / 2))); // do the Mercator projection (w/ equator of 2pi units)
+    var y = (h / 2) - (w * mercN / (2 * Math.PI)); // fit it to our map
+
+    return {
+      "x": x,
+      "y": y
+    };
   }
 };
 
 // /** @see http://en.wikipedia.org/wiki/Gall-Peters_projection */
 Geo.projections.ind.gallpeters = {
+  name: "gallpeters",
   toIDPage: function (doc, latlng, page) {
-
+    var w = doc.documentPreferences.pageWidth;
+    var h = doc.documentPreferences.pageHeight;
+    // based on this
+    // https://developers.google.com/maps/documentation/javascript/examples/map-projection-simple
+    var xoff = (w / 2);
+    var yoff = (h / 2);
+    // var _scale = scale * 1000;
+    // var x = ((latlng.lng) * scale) + xoff;
+    var x = xoff + (((w / 360) * latlng.lng));
+    // var y = ((latlng.lat * -1) * scale) + yoff;
+    var latRadians = Geo.Utilities.radians(latlng.lat);
+    var y = yoff - ((h / 2) * Math.sin(latRadians));
+    return {
+      "x": x,
+      "y": y
+    };
   }
 
 };
 
 // /** @see http://en.wikipedia.org/wiki/Sinusoidal_projection */
 Geo.projections.ind.sinusoidal = {
+  name: "sinusoidal",
   toIDPage: function (doc, latlng, page) {
+    var w = doc.documentPreferences.pageWidth;
+    var h = doc.documentPreferences.pageHeight;
 
+    var xy = {
+      x: Geo.Utilities.radians(latlng.lng) * Math.cos(Geo.Utilities.radians(latlng.lat)) / Math.PI,
+      y: latlng.lat / 90
+    };
 
+    xy.x = Geo.Utilities.map(xy.x, -1, 1, 0, w);
+    xy.y = Geo.Utilities.map(xy.y * -1, -1, 1, 0, h);
+    return xy;
   }
 
 };
 
 // /** @see http://en.wikipedia.org/wiki/Aitoff_projection */
 Geo.projections.ind.aitoff = {
-
+  name: "aitoff",
   toIDPage: function (doc, latlng, page) {
+    var w = doc.documentPreferences.pageWidth;
+    var h = doc.documentPreferences.pageHeight;
+    var l = Geo.Utilities.radians(latlng.lng),
+      f = Geo.Utilities.radians(latlng.lat),
+      a = Math.acos(Math.cos(f) * Math.cos(l / 2));
 
+    var xy = {
+      x: 2 * (a ? (Math.cos(f) * Math.sin(l / 2) * a / Math.sin(a)) : 0) / Math.PI,
+      y: 2 * (a ? (Math.sin(f) * a / Math.sin(a)) : 0) / Math.PI
+    };
+    xy.x = Geo.Utilities.map(xy.x, -1, 1, 0, w);
+    xy.y = Geo.Utilities.map(xy.y * -1, -1, 1, 0, h);
+    return xy;
   },
 };
 
 
 // /** @see http://en.wikipedia.org/wiki/Hammer_projection */
 Geo.projections.ind.hammer = {
+  name: "hammer",
+  toIDPage: function (doc, latlng, page) {
+    var w = doc.documentPreferences.pageWidth;
+    var h = doc.documentPreferences.pageHeight;
+    var l = Geo.Utilities.radians(latlng.lng),
+      f = Geo.Utilities.radians(latlng.lat),
+      c = Math.sqrt(1 + Math.cos(f) * Math.cos(l / 2));
+    var xy = {
+      x: 2 * Math.SQRT2 * Math.cos(f) * Math.sin(l / 2) / c / 3,
+      y: Math.SQRT2 * Math.sin(f) / c / 1.5
+    };
+    xy.x = Geo.Utilities.map(xy.x, -1, 1, 0, w);
+    xy.y = Geo.Utilities.map(xy.y * -1, -1, 1, 0, h);
 
-  toIDPage: function (doc, latlng, page) {}
+    return xy;
+  }
 
 };
 
@@ -710,8 +771,8 @@ var doc_builder = function(){
   if(settings.new_document){
     doc = app.documents.add({
       documentPreferences:{
-        pageWidth:360,
-        pageHeight:180,
+        pageWidth: settings.docWidth,
+        pageHeight: settings.docHeight,
         facingPages:false
         }});
   }else{
@@ -819,10 +880,29 @@ var location_transformer = function(doc, page, locations) {
     "lat": locations[1]
   };
   var xy = null;
-  if ((settings.projection_type)
+  if ((settings.ptype)
     .localeCompare('equirectangular') === 0) {
     xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-  } // end of projection type check
+  } else if((settings.ptype)
+    .localeCompare('mercator') === 0){
+    xy = Geo.projections.ind.mercator.toIDPage(doc, latlng, page);
+  } else if((settings.ptype)
+    .localeCompare('gallpeters') === 0){
+    xy = Geo.projections.ind.gallpeters.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('hammer') === 0){
+    xy = Geo.projections.ind.hammer.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('sinusoidal') === 0){
+    xy = Geo.projections.ind.sinusoidal.toIDPage(doc, latlng, page);
+  }else if((settings.ptype)
+    .localeCompare('aitoff') === 0){
+    xy = Geo.projections.ind.aitoff.toIDPage(doc, latlng, page);
+  }else{
+
+    alert("Could not identify the selected projection type");
+    return;
+  }// end of projection type check
   // $.writeln(xy.x + " <--x || y--> " +xy.y);
   return xy;
 
@@ -853,7 +933,9 @@ var geo_to_id_generator = function(doc, page) {
           // now loop all lat lon coordiantes
           var multipolygon_path = [];
           for (var l = 0; l < coords[j][k].length; l++) {
-            var mp_xy = new_location_transformer(doc, page, coords[j][k][l]);
+
+            var mp_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[j][k][l]) : location_transformer(doc, page, coords[j][k][l]);
+
             multipolygon_path.push([mp_xy.x, mp_xy.y]);
             if (DEBUG) {
 
@@ -868,7 +950,8 @@ var geo_to_id_generator = function(doc, page) {
       // nah. just a polygon
       var polygon_path = [];
       for (var m = 0; m < coords[0].length; m++) {
-        var p_xy = new_location_transformer(doc, page, coords[0][m]);
+       var p_xy =  settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
+        // var p_xy =  new_location_transformer(doc, page, coords[0][m]);
         polygon_path.push([p_xy.x, p_xy.y]);
       } // end of m loop
       paths.push(polygon_path);
