@@ -15,9 +15,18 @@ var draw = function() {
    * @type {[type]}
    */
   var paths = geo_to_id_generator(doc, canvas); // transform geo coordinates to ID coordinates
-  var layer = doc.layers.add({
+  var layer = null;
+if(settings.new_layer){
+  layer = doc.layers.add({
     name: settings.new_layer_name
   }); // add a layer
+}else{
+  layer = doc.activeLayer; // use the current one
+}
+if(layer === null){
+ alert("no active or new layer to draw on.");
+ return "no layer";
+}
   var polygons = []; // for all the polygons
   // loop the paths we have
   for (var i = 0; i < paths.length; i++) {

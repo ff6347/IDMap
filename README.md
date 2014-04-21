@@ -6,7 +6,56 @@ This is early draft. not ready for usage. If you still want to give it a try...
 
 ##Usage  
 
-If you don't want to develop just grab the latest version from the /dist folder, place it in your scripts folder and run it. See the head of the file for some options. As set in src/idmap/globals.jsx. Currently you can change the projection type.  
+If you don't want to develop just grab the latest version from the /dist folder, place it in your scripts folder and run it. See the head of the file for some options. As set in src/idmap/globals.jsx. 
+
+
+###Currently you can:
+
+Edit the settings Object at the beginning of the script.
+
+    var DEBUG = true; // just for debugging to the console
+    var settings = {
+      new_document: true,
+      new_layer: true,
+      new_layer_name: 'map',
+      /*
+      select the projection type you want
+      equirectangular = 0
+      mercator = 1
+      gallpeters = 2
+      hammer = 3
+      sinusoidal = 4
+      aitoff = 5
+       */
+      projection_type: 5,
+    };
+    // check out http://dbsgeo.com/latlon/
+    // to get lat lon coordinates
+    // this is the world bounding box
+    settings.boundingBox = {
+      zoomed: false,
+      ul_lat: 90,
+      ul_lon: -180,
+      lr_lat: -90,
+      lr_lon: 180
+    };
+
+
+-------
+
+Define if you want to use the current doc or a new one.
+
+    new_document: true
+
+Define if you wan't to draw onto a new layer. If you set this to false make sure you have a layer selected.  
+
+    new_layer: true
+
+Define the name of that new layer.
+
+    new_layer_name: 'map'
+
+ change the projection type.  
 
 
     /*
@@ -23,6 +72,8 @@ If you don't want to develop just grab the latest version from the /dist folder,
 
 If you change the `settings.boudingBox` and set `zoomed` to `true` you should be able to zoom into the data. This is only tested in equirectangular projection right now.
 
+    // check out http://dbsgeo.com/latlon/
+    // to get lat lon coordinates
     // this is the world bounding box
     settings.boundingBox = {
       zoomed: false,
