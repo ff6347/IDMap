@@ -47,19 +47,26 @@ Edit the settings Object at the beginning of the script.
 
 Define if you want to use the current doc or a new one.
 
+```js
     new_document: true
+```
 
 Define if you wan't to draw onto a new layer. If you set this to false make sure you have a layer selected.  
 
+```js
     new_layer: true
+```
 
 Define the name of that new layer.
 
+```js
     new_layer_name: 'map'
+```
 
  change the projection type.  
 
 
+```js
     /*
     select the projection type you want
     equirectangular = 0
@@ -70,10 +77,12 @@ Define the name of that new layer.
     aitoff = 5
      */
     projection_type: 5,
+```
 
 
 If you change the `settings.boudingBox` and set `zoomed` to `true` you should be able to zoom into the data. This is only tested in equirectangular projection right now.
 
+```js
     // check out http://dbsgeo.com/latlon/
     // to get lat lon coordinates
     // this is the world bounding box
@@ -96,6 +105,7 @@ If you change the `settings.boudingBox` and set `zoomed` to `true` you should be
     //   lr_lon: 13.8153076171875, // the most right point
     // };
     //
+```
 
 ##Development
 
@@ -105,11 +115,17 @@ Open Terminal
 
 Install osx command line tools. (If not already installed)
 
-    xcode-select --install  
+```shell
+    xcode-select --install
+```
+
 
 Install homebrew [homebrew](http://brew.sh/) (If not already installed)
 
+```shell
     ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"  
+
+```
 
 Install [node.js](http://nodejs.org) via [homebrew](http://brew.sh)  
 
