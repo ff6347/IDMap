@@ -13,6 +13,7 @@ If you don't want to develop just grab the latest version from the /dist folder,
 
 Edit the settings Object at the beginning of the script.
 
+```js
     var DEBUG = true; // just for debugging to the console
     var settings = {
       new_document: true,
@@ -39,6 +40,7 @@ Edit the settings Object at the beginning of the script.
       lr_lat: -90,
       lr_lon: 180
     };
+```
 
 
 -------
