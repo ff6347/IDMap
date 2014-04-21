@@ -115,17 +115,11 @@ Open Terminal
 
 Install osx command line tools. (If not already installed)
 
-```shell
-    xcode-select --install
-```
-
+    xcode-select --install  
 
 Install homebrew [homebrew](http://brew.sh/) (If not already installed)
 
-```shell
     ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"  
-
-```
 
 Install [node.js](http://nodejs.org) via [homebrew](http://brew.sh)  
 
