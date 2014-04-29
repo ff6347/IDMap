@@ -1,5 +1,5 @@
 
-/*! IDMap.jsx - v0.2.0 - 2014-04-21 */
+/*! IDMap.jsx - v0.2.0 - 2014-04-29 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -37,20 +37,20 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type: 5,
+  projection_type:1,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
 };
 
 // this is the world bounding box
-settings.boundingBox = {
-  zoomed: false,
-  ul_lat: 90,
-  ul_lon: -180,
-  lr_lat: -90,
-  lr_lon: 180
-};
+// settings.boundingBox = {
+//   zoomed: false,
+//   ul_lat: 90,
+//   ul_lon: -180,
+//   lr_lat: -90,
+//   lr_lon: 180
+// };
 
 //  set a different bbox
 // this is berlin potsdam bounding box
@@ -63,7 +63,23 @@ settings.boundingBox = {
 //   lr_lon: 13.8153076171875, // the most right point
 // };
 //
+// this is for testing purpose un use with tilemill
+// settings.boundingBox = {
+//    zoomed: true,
+//   ul_lon: 13.027, // the most left point
+//   ul_lat: 52.7138, // the most top point
+//   lr_lat: 52.3160, // the most bottom point
+//   lr_lon: 13.7769, // the most right point
+// };
+settings.boundingBox = {
+   zoomed: true,
+  ul_lon: -85.87600708007812, // the most left point
+  ul_lat: 24.265745335010493, // the most top point
+  lr_lat:  19.76541117325592, // the most bottom point
+  lr_lon:  -78.66897583007812, // the most right point
+};
 
+// 18.529421646830606, -72.39303588867188
 /*****************************************************
 Below this line is advanced editing.
 Only change things if you are sure what you are doing
@@ -776,8 +792,11 @@ var doc_builder = function(){
         }});
   }else{
     doc = app.activeDocument;
-    // here should be a check if the pagesize fits our 2:1
-    // equirectangular
+    if(app.documents.length === 0){
+      alert("Hm. You need to have a document or set the settings to new_document.\n Right now it seems like you set the settings.new_document to false but don't have any open document. How should i draw something for you? Onto a coster?");
+    }
+    return "no document available";
+    // here should be a check if the pagesize fits our map
   }
   return doc;
 };
@@ -855,7 +874,7 @@ var new_location_transformer = function(doc, page, locations) {
   // should be merged into the extendscript.geo lib
   var w = doc.documentPreferences.pageWidth;
   var h = doc.documentPreferences.pageHeight;
-    var latlng = {
+  var latlng = {
     "lng": locations[0],
     "lat": locations[1]
   };
@@ -865,11 +884,22 @@ var new_location_transformer = function(doc, page, locations) {
   //   lr_lat: -90,
   //   lr_lon: 180
   // },
-  var x = w *  ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
-  var y =  ( h * ((settings.boundingBox.ul_lat - latlng.lat)/(settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
-  return  {
+  var x = w * ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
+  var y = (h * ((settings.boundingBox.ul_lat - latlng.lat) / (settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
+  if (x < 0) {
+    x = 0;
+  } else if (x > w) {
+    x = w;
+  }
+  if (y < 0) {
+    y = 0;
+  } else if (y > h) {
+    y = h;
+  }
+  return {
     "x": x,
-      "y": y};
+    "y": y
+  };
 
 };
 
@@ -882,26 +912,26 @@ var location_transformer = function(doc, page, locations) {
   if ((settings.ptype)
     .localeCompare('equirectangular') === 0) {
     xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-  } else if((settings.ptype)
-    .localeCompare('mercator') === 0){
+  } else if ((settings.ptype)
+    .localeCompare('mercator') === 0) {
     xy = Geo.projections.ind.mercator.toIDPage(doc, latlng, page);
-  } else if((settings.ptype)
-    .localeCompare('gallpeters') === 0){
+  } else if ((settings.ptype)
+    .localeCompare('gallpeters') === 0) {
     xy = Geo.projections.ind.gallpeters.toIDPage(doc, latlng, page);
-  }else if((settings.ptype)
-    .localeCompare('hammer') === 0){
+  } else if ((settings.ptype)
+    .localeCompare('hammer') === 0) {
     xy = Geo.projections.ind.hammer.toIDPage(doc, latlng, page);
-  }else if((settings.ptype)
-    .localeCompare('sinusoidal') === 0){
+  } else if ((settings.ptype)
+    .localeCompare('sinusoidal') === 0) {
     xy = Geo.projections.ind.sinusoidal.toIDPage(doc, latlng, page);
-  }else if((settings.ptype)
-    .localeCompare('aitoff') === 0){
+  } else if ((settings.ptype)
+    .localeCompare('aitoff') === 0) {
     xy = Geo.projections.ind.aitoff.toIDPage(doc, latlng, page);
-  }else{
+  } else {
 
     alert("Could not identify the selected projection type");
     return;
-  }// end of projection type check
+  } // end of projection type check
   // $.writeln(xy.x + " <--x || y--> " +xy.y);
   return xy;
 
@@ -949,7 +979,7 @@ var geo_to_id_generator = function(doc, page) {
       // nah. just a polygon
       var polygon_path = [];
       for (var m = 0; m < coords[0].length; m++) {
-       var p_xy =  settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
+        var p_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
         // var p_xy =  new_location_transformer(doc, page, coords[0][m]);
         polygon_path.push([p_xy.x, p_xy.y]);
       } // end of m loop
@@ -976,9 +1006,18 @@ var draw = function() {
    * @type {[type]}
    */
   var paths = geo_to_id_generator(doc, canvas); // transform geo coordinates to ID coordinates
-  var layer = doc.layers.add({
+  var layer = null;
+if(settings.new_layer){
+  layer = doc.layers.add({
     name: settings.new_layer_name
   }); // add a layer
+}else{
+  layer = doc.activeLayer; // use the current one
+}
+if(layer === null){
+ alert("no active or new layer to draw on.");
+ return "no layer";
+}
   var polygons = []; // for all the polygons
   // loop the paths we have
   for (var i = 0; i < paths.length; i++) {
