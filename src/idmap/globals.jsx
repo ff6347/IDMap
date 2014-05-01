@@ -22,10 +22,12 @@ var settings = {
 // this is the world bounding box
 settings.boundingBox = {
   zoomed: false,
+  bounds:{
   ul_lat: 90,
   ul_lon: -180,
   lr_lat: -90,
   lr_lon: 180
+  }
 };
 
 //  set a different bbox
@@ -33,28 +35,34 @@ settings.boundingBox = {
 //
 // settings.boundingBox = {
 //    zoomed: true,
+//    bounds:{
 //   ul_lon: 12.9638671875, // the most left point
 //   ul_lat: 52.70468296296834, // the most top point
 //   lr_lat: 52.338695481504814, // the most bottom point
-//   lr_lon: 13.8153076171875, // the most right point
+//   lr_lon: 13.8153076171875 // the most right point
+//   }
 // };
 //
 // this is for testing purpose and use with tilemill
 // settings.boundingBox = {
 //    zoomed: true,
+//    bounds:{
 //   ul_lon: 13.027, // the most left point
 //   ul_lat: 52.7138, // the most top point
 //   lr_lat: 52.3160, // the most bottom point
-//   lr_lon: 13.7769, // the most right point
+//   lr_lon: 13.7769 // the most right point
+//   }
 // };
 
 // this is a part of Cuba
 // settings.boundingBox = {
 //    zoomed: true,
+//    bounds:{
 //   ul_lon: -85.87600708007812, // the most left point
 //   ul_lat: 24.265745335010493, // the most top point
 //   lr_lat:  19.76541117325592, // the most bottom point
-//   lr_lon:  -78.66897583007812, // the most right point
+//   lr_lon:  -78.66897583007812 // the most right point
+//   }
 // };
 
 // 18.529421646830606, -72.39303588867188

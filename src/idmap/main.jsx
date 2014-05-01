@@ -14,7 +14,7 @@ var draw = function() {
    * see file src/idmap/geo.jsx
    * @type {[type]}
    */
-  var paths = geo_to_id_generator(doc, canvas); // transform geo coordinates to ID coordinates
+  var paths = geo_to_id_generator(doc, canvas, settings); // transform geo coordinates to ID coordinates
   var layer = null;
 if(settings.new_layer){
   layer = doc.layers.add({
