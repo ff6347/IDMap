@@ -1,5 +1,5 @@
 
-/*! IDMap.jsx - v0.2.0 - 2014-04-29 */
+/*! IDMap.jsx - v0.2.0 - 2014-05-01 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -37,20 +37,20 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type:1,
+  projection_type:0,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
 };
 
 // this is the world bounding box
-// settings.boundingBox = {
-//   zoomed: false,
-//   ul_lat: 90,
-//   ul_lon: -180,
-//   lr_lat: -90,
-//   lr_lon: 180
-// };
+settings.boundingBox = {
+  zoomed: false,
+  ul_lat: 90,
+  ul_lon: -180,
+  lr_lat: -90,
+  lr_lon: 180
+};
 
 //  set a different bbox
 // this is berlin potsdam bounding box
@@ -63,7 +63,7 @@ var settings = {
 //   lr_lon: 13.8153076171875, // the most right point
 // };
 //
-// this is for testing purpose un use with tilemill
+// this is for testing purpose and use with tilemill
 // settings.boundingBox = {
 //    zoomed: true,
 //   ul_lon: 13.027, // the most left point
@@ -71,13 +71,15 @@ var settings = {
 //   lr_lat: 52.3160, // the most bottom point
 //   lr_lon: 13.7769, // the most right point
 // };
-settings.boundingBox = {
-   zoomed: true,
-  ul_lon: -85.87600708007812, // the most left point
-  ul_lat: 24.265745335010493, // the most top point
-  lr_lat:  19.76541117325592, // the most bottom point
-  lr_lon:  -78.66897583007812, // the most right point
-};
+
+// this is a part of Cuba
+// settings.boundingBox = {
+//    zoomed: true,
+//   ul_lon: -85.87600708007812, // the most left point
+//   ul_lat: 24.265745335010493, // the most top point
+//   lr_lat:  19.76541117325592, // the most bottom point
+//   lr_lon:  -78.66897583007812, // the most right point
+// };
 
 // 18.529421646830606, -72.39303588867188
 /*****************************************************
@@ -808,10 +810,11 @@ var doc_builder = function(){
  * @param  {the path to draw} path an array of coordiantes on the page [[x,y],[x,y],[x,y],...]
  * @return {Polygon}
  */
-var polygon_drawer = function(page, path, layer){
+var polygon_drawer = function(page, path, layer, name){
   // this would be the way in extendscript only
   var poly = page.polygons.add({itemLayer:layer});
   poly.paths[0].entirePath = path;
+  poly.label = name;
   return poly; // for styling
 };
 /**
@@ -960,33 +963,33 @@ var geo_to_id_generator = function(doc, page) {
       for (var j = 0; j < coords.length; j++) {
         for (var k = 0; k < coords[j].length; k++) {
           // now loop all lat lon coordiantes
-          var multipolygon_path = [];
+          var multipolygon = {country:name,path:[]};
           for (var l = 0; l < coords[j][k].length; l++) {
 
             var mp_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[j][k][l]) : location_transformer(doc, page, coords[j][k][l]);
 
-            multipolygon_path.push([mp_xy.x, mp_xy.y]);
+            multipolygon.path.push([mp_xy.x, mp_xy.y]);
             if (DEBUG) {
 
               // $.writeln("Path:" + path + "\n\n"); // this takes a long time to execute
               // $.writeln("Path has " + path.length + " points");
             }
           } // end of l loop
-          paths.push(multipolygon_path);
+          paths.push(multipolygon);
         } // end of k loop
       } // end of j loop
     } else {
       // nah. just a polygon
-      var polygon_path = [];
+      var polygon = {country: name, path:[]};
       for (var m = 0; m < coords[0].length; m++) {
         var p_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
         // var p_xy =  new_location_transformer(doc, page, coords[0][m]);
-        polygon_path.push([p_xy.x, p_xy.y]);
+        polygon.path.push([p_xy.x, p_xy.y]);
       } // end of m loop
-      paths.push(polygon_path);
+      paths.push(polygon);
     } // end of else polygon
   } // end of i loop
-  if (DEBUG) $.writeln(paths);
+  // if (DEBUG) $.writeln(paths);
   return paths;
 };
 /*************************************************
@@ -1024,7 +1027,7 @@ if(layer === null){
     /**
      * see file src/idmap/polygon.jsx
      */
-    var poly = polygon_drawer(canvas, paths[i], layer);
+    var poly = polygon_drawer(canvas, paths[i].path, layer,paths[i].country);
     polygons.push(poly); // push them to the array
   }
   /**

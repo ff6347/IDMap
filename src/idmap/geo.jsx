@@ -94,32 +94,32 @@ var geo_to_id_generator = function(doc, page) {
       for (var j = 0; j < coords.length; j++) {
         for (var k = 0; k < coords[j].length; k++) {
           // now loop all lat lon coordiantes
-          var multipolygon_path = [];
+          var multipolygon = {country:name,path:[]};
           for (var l = 0; l < coords[j][k].length; l++) {
 
             var mp_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[j][k][l]) : location_transformer(doc, page, coords[j][k][l]);
 
-            multipolygon_path.push([mp_xy.x, mp_xy.y]);
+            multipolygon.path.push([mp_xy.x, mp_xy.y]);
             if (DEBUG) {
 
               // $.writeln("Path:" + path + "\n\n"); // this takes a long time to execute
               // $.writeln("Path has " + path.length + " points");
             }
           } // end of l loop
-          paths.push(multipolygon_path);
+          paths.push(multipolygon);
         } // end of k loop
       } // end of j loop
     } else {
       // nah. just a polygon
-      var polygon_path = [];
+      var polygon = {country: name, path:[]};
       for (var m = 0; m < coords[0].length; m++) {
         var p_xy = settings.boundingBox.zoomed === true ? new_location_transformer(doc, page, coords[0][m]) : location_transformer(doc, page, coords[0][m]);
         // var p_xy =  new_location_transformer(doc, page, coords[0][m]);
-        polygon_path.push([p_xy.x, p_xy.y]);
+        polygon.path.push([p_xy.x, p_xy.y]);
       } // end of m loop
-      paths.push(polygon_path);
+      paths.push(polygon);
     } // end of else polygon
   } // end of i loop
-  if (DEBUG) $.writeln(paths);
+  // if (DEBUG) $.writeln(paths);
   return paths;
 };

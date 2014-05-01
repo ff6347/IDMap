@@ -33,7 +33,7 @@ if(layer === null){
     /**
      * see file src/idmap/polygon.jsx
      */
-    var poly = polygon_drawer(canvas, paths[i], layer);
+    var poly = polygon_drawer(canvas, paths[i].path, layer,paths[i].country);
     polygons.push(poly); // push them to the array
   }
   /**
