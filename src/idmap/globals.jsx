@@ -13,22 +13,22 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type:3,
+  projection_type:0,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
 };
 
 // this is the world bounding box
-settings.boundingBox = {
-  zoomed: false,
-  bounds:{
-  ul_lat: 90,
-  ul_lon: -180,
-  lr_lon: 180,
-  lr_lat: -90
-  }
-};
+// settings.boundingBox = {
+//   zoomed: false,
+//   bounds:{
+//   ul_lat: 90,
+//   ul_lon: -180,
+//   lr_lat: -90,
+//   lr_lon: 180
+//   }
+// };
 
 //  set a different bbox
 // this is berlin potsdam bounding box
@@ -56,21 +56,30 @@ settings.boundingBox = {
 
 // tilemill export test
 // UL LON -114.6094
-// UL LAT 1.4061
+// UL LAT 59.5343
 // LR LON 56.25
-// LR LAT 59.5343
+// LR LAT 1.4061
 //
 // settings.boundingBox = {
 //    zoomed: true,
 //    bounds:{
 //   ul_lon: -114.6094, // the most left point
-//   ul_lat: 1.4061, // the most top point
-//   lr_lat: 59.5343, // the most bottom point
-//   lr_lon: 56.25 // the most right point
+//   ul_lat: 59.5343, // the most top point
+//   lr_lon: 56.25, // the most right point
+//   lr_lat: 1.4061 // the most bottom point
 //   }
 // };
 
-
+// mercator zoom test
+settings.boundingBox = {
+   zoomed: true,
+    bounds:{
+  ul_lat: 90,
+  ul_lon: -180,
+  lr_lat: -90,
+  lr_lon: 180
+  }
+};
 
 
 // this is a part of Cuba

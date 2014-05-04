@@ -1,7 +1,6 @@
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-
 var geo_to_id_generator = function(doc, page, settings) {
 var transformer = Geo.projections.ind.transform;
 var bounds = settings.boundingBox.bounds;

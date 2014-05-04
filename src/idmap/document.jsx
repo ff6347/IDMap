@@ -22,100 +22,46 @@ var doc_builder = function() {
     var lr_lon = settings.boundingBox.bounds.lr_lon;
     var lr_lat = settings.boundingBox.bounds.lr_lat;
     var ul_xy, lr_xy;
-
-    if ((settings.ptype)
-      .localeCompare('equirectangular') === 0) {
+      if(settings.projection_type !== 1){
       if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
 
-      ul_xy = Geo.projections.equirectangular.project({
+      ul_xy = Geo.projections[settings.ptype].project({
         lng: ul_lon,
         lat: ul_lat
       });
-      lr_xy = Geo.projections.equirectangular.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('mercator') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.mercator.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.mercator.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('gallpeters') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.gallpeters.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.gallpeters.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('sinusoidal') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.sinusoidal.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.sinusoidal.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('aitoff') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.aitoff.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.aitoff.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('hammer') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.hammer.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.hammer.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else {
-      // fallback to equirectangular
-      if (DEBUG) $.writeln("Calculating doc size with fallback projection");
 
-      ul_xy = Geo.projections.equirectangular.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.equirectangular.project({
+      lr_xy = Geo.projections[settings.ptype].project({
         lng: lr_lon,
         lat: lr_lat
       });
-    }
-    var w = 360;
-    var h = 180;
+      }else if(settings.projection_type === 1){
+        // cant get the height right ...
+      ul_xy = Geo.projections[settings.ptype].project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+
+      lr_xy = Geo.projections[settings.ptype].project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+      }
+
+
+      if(DEBUG) $.writeln(" this is upper left xy: "+ul_xy.toSource());
+      if(DEBUG) $.writeln(" this is lower right xy: "+lr_xy.toSource());
+    var w,h;
     if(settings.projection_type === 0){
      w = difference(ul_xy.x, lr_xy.x);
      h = (difference(ul_xy.y, lr_xy.y));
 
       }else if(settings.projection_type === 1){
 
-     w = difference(ul_xy.x, lr_xy.x);
+     w = (difference(ul_xy.x, lr_xy.x));
      h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
         }else if(settings.projection_type > 1){
-     w = settings.projections[1].w * difference(ul_xy.x, lr_xy.x);
-     h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
+     w = settings.projections[settings.projection_type].w * difference(ul_xy.x, lr_xy.x);
+     h = settings.projections[settings.projection_type].h * (difference(ul_xy.y, lr_xy.y));
 
         }
     if (DEBUG) {

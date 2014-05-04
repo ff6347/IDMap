@@ -37,22 +37,22 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type:3,
+  projection_type:0,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
 };
 
 // this is the world bounding box
-settings.boundingBox = {
-  zoomed: false,
-  bounds:{
-  ul_lat: 90,
-  ul_lon: -180,
-  lr_lon: 180,
-  lr_lat: -90
-  }
-};
+// settings.boundingBox = {
+//   zoomed: false,
+//   bounds:{
+//   ul_lat: 90,
+//   ul_lon: -180,
+//   lr_lat: -90,
+//   lr_lon: 180
+//   }
+// };
 
 //  set a different bbox
 // this is berlin potsdam bounding box
@@ -80,21 +80,30 @@ settings.boundingBox = {
 
 // tilemill export test
 // UL LON -114.6094
-// UL LAT 1.4061
+// UL LAT 59.5343
 // LR LON 56.25
-// LR LAT 59.5343
+// LR LAT 1.4061
 //
 // settings.boundingBox = {
 //    zoomed: true,
 //    bounds:{
 //   ul_lon: -114.6094, // the most left point
-//   ul_lat: 1.4061, // the most top point
-//   lr_lat: 59.5343, // the most bottom point
-//   lr_lon: 56.25 // the most right point
+//   ul_lat: 59.5343, // the most top point
+//   lr_lon: 56.25, // the most right point
+//   lr_lat: 1.4061 // the most bottom point
 //   }
 // };
 
-
+// mercator zoom test
+settings.boundingBox = {
+   zoomed: true,
+    bounds:{
+  ul_lat: 90,
+  ul_lon: -180,
+  lr_lat: -90,
+  lr_lon: 180
+  }
+};
 
 
 // this is a part of Cuba
@@ -188,7 +197,7 @@ var msg = "There was an error getting the right projection type. Did you use one
 END OF SETTINGS in src/idmap/globals.jsx
 *****************************************/
 
-/*! extendscript.geo.jsx - v0.0.1 - 2014-05-01 */
+/*! extendscript.geo.jsx - v0.0.1 - 2014-05-04 */
 /*!
  * This is Geo.js
   * A collection of functions for calculating geo locations.
@@ -249,12 +258,38 @@ Geo.projections = {
   },
   /** @see http://en.wikipedia.org/wiki/Mercator_projection */
   mercator: {
-
     project: function (latlng) {
+      // from unfoldingmaps
+      // https://github.com/tillnagel/unfolding/blob/master/src/de/fhpotsdam/unfolding/geo/MercatorProjection.java
+      var lat  = latlng.lat;
+      var lon  = latlng.lng;
+      var x = lon;
+      var y = lat > 85 ? 1 : lat < -85 ? -1 : Math.log(Math.tan(Math.PI / 4 + Geo.Utilities.radians(lat) / 2)) / Math.PI;
 
+      if (DEBUG)$.writeln("This is lon: " + lon);
+      if (DEBUG)$.writeln("This is lat: " + lat);
+      if (DEBUG)$.writeln("This is x: " + x);
+      if (DEBUG)$.writeln("This is y: " + y);
+      // return {"x":x, "y": y};
+
+// http://dotnetfollower.com/wordpress/2011/08/javascript-how-to-convert-latitude-and-longitude-to-mercator-coordinates/
+// function LatLonToMercator(lat, lon) {
+
+    // var rMajor = 6378137; //Equatorial Radius, WGS84
+    // var shift  = Math.PI * rMajor;
+    // var x      = latlng.lng * shift / 180;
+    // var y      = Math.log(Math.tan((90 + latlng.lat) * Math.PI / 360)) / (Math.PI / 180);
+    // y = y * shift / 180;
+    // if(DEBUG) $.writeln("from /extendscript.geo/src/Projections.jsx");
+    // if(DEBUG) $.writeln("This is calculated x: " + x);
+    // if(DEBUG) $.writeln("This is calculated y: " + y);
+    // return {'x': x, 'y': y};
+// }
+
+ // return {x:lon, y: Math.log(Math.tan(Math.PI / 4 + Geo.Utilities.radians(latlat) / 2))};
       return {
-        x: latlng.lng,
-        y: latlng.lat > 85 ? 1 : latlng.lat < -85 ? -1 : Math.log(Math.tan(Math.PI / 4 + Geo.Utilities.radians(latlng.lat) / 2)) / Math.PI
+        "x": x,
+        "y": y
       };
     },
     // invert: function (xy) {
@@ -573,7 +608,7 @@ Geo.Utilities.ind = {
     },
     get: function(doc){
 
-      return eval(doc.label);
+      return eval(doc.label);// jshint ignore:line
     }
   }
 };
@@ -923,100 +958,46 @@ var doc_builder = function() {
     var lr_lon = settings.boundingBox.bounds.lr_lon;
     var lr_lat = settings.boundingBox.bounds.lr_lat;
     var ul_xy, lr_xy;
-
-    if ((settings.ptype)
-      .localeCompare('equirectangular') === 0) {
+      if(settings.projection_type !== 1){
       if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
 
-      ul_xy = Geo.projections.equirectangular.project({
+      ul_xy = Geo.projections[settings.ptype].project({
         lng: ul_lon,
         lat: ul_lat
       });
-      lr_xy = Geo.projections.equirectangular.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('mercator') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.mercator.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.mercator.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('gallpeters') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.gallpeters.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.gallpeters.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('sinusoidal') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.sinusoidal.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.sinusoidal.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('aitoff') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.aitoff.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.aitoff.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else if ((settings.ptype)
-      .localeCompare('hammer') === 0) {
-      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
-      ul_xy = Geo.projections.hammer.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.hammer.project({
-        lng: lr_lon,
-        lat: lr_lat
-      });
-    } else {
-      // fallback to equirectangular
-      if (DEBUG) $.writeln("Calculating doc size with fallback projection");
 
-      ul_xy = Geo.projections.equirectangular.project({
-        lng: ul_lon,
-        lat: ul_lat
-      });
-      lr_xy = Geo.projections.equirectangular.project({
+      lr_xy = Geo.projections[settings.ptype].project({
         lng: lr_lon,
         lat: lr_lat
       });
-    }
-    var w = 360;
-    var h = 180;
+      }else if(settings.projection_type === 1){
+        // cant get the height right ...
+      ul_xy = Geo.projections[settings.ptype].project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+
+      lr_xy = Geo.projections[settings.ptype].project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+      }
+
+
+      if(DEBUG) $.writeln(" this is upper left xy: "+ul_xy.toSource());
+      if(DEBUG) $.writeln(" this is lower right xy: "+lr_xy.toSource());
+    var w,h;
     if(settings.projection_type === 0){
      w = difference(ul_xy.x, lr_xy.x);
      h = (difference(ul_xy.y, lr_xy.y));
 
       }else if(settings.projection_type === 1){
 
-     w = difference(ul_xy.x, lr_xy.x);
+     w = (difference(ul_xy.x, lr_xy.x));
      h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
         }else if(settings.projection_type > 1){
-     w = settings.projections[1].w * difference(ul_xy.x, lr_xy.x);
-     h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
+     w = settings.projections[settings.projection_type].w * difference(ul_xy.x, lr_xy.x);
+     h = settings.projections[settings.projection_type].h * (difference(ul_xy.y, lr_xy.y));
 
         }
     if (DEBUG) {
@@ -1116,7 +1097,6 @@ var polygon_styling = function(doc, polygons) {
 };
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
-
 
 var geo_to_id_generator = function(doc, page, settings) {
 var transformer = Geo.projections.ind.transform;
