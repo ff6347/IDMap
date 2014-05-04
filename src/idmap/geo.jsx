@@ -1,76 +1,7 @@
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-// var new_location_transformer = function(doc, page, locations) {
-//   //  float x = width * ((BPM_westlon - loc.lon) / (BPM_westlon - BPM_eastlon));
-//   // float y = ( height * ((BPM_northlat - loc.lat)/(BPM_northlat - BPM_southlat)));
-//   // This is still in an experimanteal state
-//   // should be merged into the extendscript.geo lib
-//   var w = doc.documentPreferences.pageWidth;
-//   var h = doc.documentPreferences.pageHeight;
-//   var latlng = {
-//     "lng": locations[0],
-//     "lat": locations[1]
-//   };
-//   //   boundingBox: {
-//   //   ul_lat: 90,
-//   //   ul_lon: -180,
-//   //   lr_lat: -90,
-//   //   lr_lon: 180
-//   // },
-//   var x = w * ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
-//   var y = (h * ((settings.boundingBox.ul_lat - latlng.lat) / (settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
-//   if (x < 0) {
-//     x = 0;
-//   } else if (x > w) {
-//     x = w;
-//   }
-//   if (y < 0) {
-//     y = 0;
-//   } else if (y > h) {
-//     y = h;
-//   }
-//   return {
-//     "x": x,
-//     "y": y
-//   };
 
-// };
-
-// var location_transformer = function(doc, page, locations) {
-//   var latlng = {
-//     "lng": locations[0],
-//     "lat": locations[1]
-//   };
-//   var xy = null;
-//   if ((settings.ptype)
-//     .localeCompare('equirectangular') === 0) {
-//     xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('mercator') === 0) {
-//     xy = Geo.projections.ind.mercator.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('gallpeters') === 0) {
-//     xy = Geo.projections.ind.gallpeters.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('hammer') === 0) {
-//     xy = Geo.projections.ind.hammer.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('sinusoidal') === 0) {
-//     xy = Geo.projections.ind.sinusoidal.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('aitoff') === 0) {
-//     xy = Geo.projections.ind.aitoff.toIDPage(doc, latlng, page);
-//   } else {
-
-//     alert("Could not identify the selected projection type");
-//     return;
-//   } // end of projection type check
-//   // $.writeln(xy.x + " <--x || y--> " +xy.y);
-//   return xy;
-
-// };
-//
 var geo_to_id_generator = function(doc, page, settings) {
 var transformer = Geo.projections.ind.transform;
 var bounds = settings.boundingBox.bounds;
@@ -88,8 +19,8 @@ var zoomed = settings.boundingBox.zoomed;
     var coords = country.geometry.coordinates;
     // we need to check if we have polygons or mulitpolygon features
     if (DEBUG) {
-      $.writeln("Country: " + name);
-      $.writeln("Geo Json feature type: " + type);
+      // $.writeln("Country: " + name);
+      // $.writeln("Geo Json feature type: " + type);
 
     }
 

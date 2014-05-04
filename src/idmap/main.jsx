@@ -41,7 +41,8 @@ if(layer === null){
    */
   create_objectstyles(doc); // create some object styles
   polygon_styling(doc, polygons); // style them
-  return 'done';
+  return 0;
 };
 
 draw();// now run that thang!
+return 'done';

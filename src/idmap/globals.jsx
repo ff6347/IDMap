@@ -13,7 +13,7 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type:0,
+  projection_type:3,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
@@ -25,8 +25,8 @@ settings.boundingBox = {
   bounds:{
   ul_lat: 90,
   ul_lon: -180,
-  lr_lat: -90,
-  lr_lon: 180
+  lr_lon: 180,
+  lr_lat: -90
   }
 };
 
@@ -38,21 +38,40 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: 12.9638671875, // the most left point
 //   ul_lat: 52.70468296296834, // the most top point
-//   lr_lat: 52.338695481504814, // the most bottom point
 //   lr_lon: 13.8153076171875 // the most right point
+//   lr_lat: 52.338695481504814, // the most bottom point
 //   }
 // };
 //
-// this is for testing purpose and use with tilemill
+// europe zoomed
 // settings.boundingBox = {
 //    zoomed: true,
 //    bounds:{
-//   ul_lon: 13.027, // the most left point
-//   ul_lat: 52.7138, // the most top point
-//   lr_lat: 52.3160, // the most bottom point
-//   lr_lon: 13.7769 // the most right point
+//   ul_lon: -27.476806640625, // the most left point
+//   ul_lat: 60.965109923019, // the most top point
+//   lr_lon: 49.515380859375, // the most right point
+//   lr_lat: 43.12103377575541 // the most bottom point
 //   }
 // };
+
+// tilemill export test
+// UL LON -114.6094
+// UL LAT 1.4061
+// LR LON 56.25
+// LR LAT 59.5343
+//
+// settings.boundingBox = {
+//    zoomed: true,
+//    bounds:{
+//   ul_lon: -114.6094, // the most left point
+//   ul_lat: 1.4061, // the most top point
+//   lr_lat: 59.5343, // the most bottom point
+//   lr_lon: 56.25 // the most right point
+//   }
+// };
+
+
+
 
 // this is a part of Cuba
 // settings.boundingBox = {
@@ -60,12 +79,11 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: -85.87600708007812, // the most left point
 //   ul_lat: 24.265745335010493, // the most top point
-//   lr_lat:  19.76541117325592, // the most bottom point
-//   lr_lon:  -78.66897583007812 // the most right point
+//   lr_lon:  -78.66897583007812, // the most right point
+//   lr_lat:  19.76541117325592 // the most bottom point
 //   }
 // };
 
-// 18.529421646830606, -72.39303588867188
 /*****************************************************
 Below this line is advanced editing.
 Only change things if you are sure what you are doing
@@ -109,7 +127,7 @@ settings.projections  = [
 // calc the right projection
 //
 settings.gotTheType = false;
-settings.ptype = 0;
+settings.ptype = "";
 settings.docWidth = 0;
 settings.docHeight = 0;
 

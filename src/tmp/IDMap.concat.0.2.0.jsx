@@ -1,5 +1,5 @@
 
-/*! IDMap.jsx - v0.2.0 - 2014-05-01 */
+/*! IDMap.jsx - v0.2.0 - 2014-05-04 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -37,7 +37,7 @@ var settings = {
   sinusoidal = 4
   aitoff = 5
    */
-  projection_type:0,
+  projection_type:3,
 
   // check out http://dbsgeo.com/latlon/
   // to get lat lon coordinates
@@ -49,8 +49,8 @@ settings.boundingBox = {
   bounds:{
   ul_lat: 90,
   ul_lon: -180,
-  lr_lat: -90,
-  lr_lon: 180
+  lr_lon: 180,
+  lr_lat: -90
   }
 };
 
@@ -62,21 +62,40 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: 12.9638671875, // the most left point
 //   ul_lat: 52.70468296296834, // the most top point
-//   lr_lat: 52.338695481504814, // the most bottom point
 //   lr_lon: 13.8153076171875 // the most right point
+//   lr_lat: 52.338695481504814, // the most bottom point
 //   }
 // };
 //
-// this is for testing purpose and use with tilemill
+// europe zoomed
 // settings.boundingBox = {
 //    zoomed: true,
 //    bounds:{
-//   ul_lon: 13.027, // the most left point
-//   ul_lat: 52.7138, // the most top point
-//   lr_lat: 52.3160, // the most bottom point
-//   lr_lon: 13.7769 // the most right point
+//   ul_lon: -27.476806640625, // the most left point
+//   ul_lat: 60.965109923019, // the most top point
+//   lr_lon: 49.515380859375, // the most right point
+//   lr_lat: 43.12103377575541 // the most bottom point
 //   }
 // };
+
+// tilemill export test
+// UL LON -114.6094
+// UL LAT 1.4061
+// LR LON 56.25
+// LR LAT 59.5343
+//
+// settings.boundingBox = {
+//    zoomed: true,
+//    bounds:{
+//   ul_lon: -114.6094, // the most left point
+//   ul_lat: 1.4061, // the most top point
+//   lr_lat: 59.5343, // the most bottom point
+//   lr_lon: 56.25 // the most right point
+//   }
+// };
+
+
+
 
 // this is a part of Cuba
 // settings.boundingBox = {
@@ -84,12 +103,11 @@ settings.boundingBox = {
 //    bounds:{
 //   ul_lon: -85.87600708007812, // the most left point
 //   ul_lat: 24.265745335010493, // the most top point
-//   lr_lat:  19.76541117325592, // the most bottom point
-//   lr_lon:  -78.66897583007812 // the most right point
+//   lr_lon:  -78.66897583007812, // the most right point
+//   lr_lat:  19.76541117325592 // the most bottom point
 //   }
 // };
 
-// 18.529421646830606, -72.39303588867188
 /*****************************************************
 Below this line is advanced editing.
 Only change things if you are sure what you are doing
@@ -133,7 +151,7 @@ settings.projections  = [
 // calc the right projection
 //
 settings.gotTheType = false;
-settings.ptype = 0;
+settings.ptype = "";
 settings.docWidth = 0;
 settings.docHeight = 0;
 
@@ -211,6 +229,7 @@ Geo.Utilities.radians = function (degrees) {
 Geo.Utilities.map = function (value, low1, high1, low2, high2) {
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 };
+
 Geo.projections = {
   /** The identity or "none" projection. */
   equirectangular: {
@@ -540,6 +559,25 @@ Geo.projections.ind.transform = function(doc, page, locations, zoomed, boundingB
 
   }
 };
+
+// indesign specific utilites
+
+
+
+Geo.Utilities.ind = {
+
+  info : {
+    set : function(doc, bounds, ptype, zoomed){
+      var info = {"bounds":bounds,"projectionType":ptype, "zoomed":zoomed};
+      doc.label = info.toSource();
+    },
+    get: function(doc){
+
+      return eval(doc.label);
+    }
+  }
+};
+
 // END OF InDesign.js
 
 /*! extendscript.csv.jsx - v0.0.1 - 2014-04-06 */
@@ -863,28 +901,154 @@ var idmap_countries =
 
 // this src/idmap/document.jsx
 // A simple fuction for creating a new doc with some basic settings
-//
-var doc_builder = function(){
+//// settings.boundingBox = {
+//   zoomed: false,
+//   bounds:{
+//   ul_lat: 90,
+//   ul_lon: -180,
+//   lr_lat: -90,
+//   lr_lon: 180
+//   }
+// };
+var difference = function(a, b) {
+  return Math.abs(a - b);
+};
+
+var doc_builder = function() {
   var doc = null;
-  if(settings.new_document){
+  if (settings.boundingBox.zoomed) {
+    // calc new doc width
+    var ul_lon = settings.boundingBox.bounds.ul_lon;
+    var ul_lat = settings.boundingBox.bounds.ul_lat;
+    var lr_lon = settings.boundingBox.bounds.lr_lon;
+    var lr_lat = settings.boundingBox.bounds.lr_lat;
+    var ul_xy, lr_xy;
+
+    if ((settings.ptype)
+      .localeCompare('equirectangular') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+
+      ul_xy = Geo.projections.equirectangular.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.equirectangular.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else if ((settings.ptype)
+      .localeCompare('mercator') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+      ul_xy = Geo.projections.mercator.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.mercator.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else if ((settings.ptype)
+      .localeCompare('gallpeters') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+      ul_xy = Geo.projections.gallpeters.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.gallpeters.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else if ((settings.ptype)
+      .localeCompare('sinusoidal') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+      ul_xy = Geo.projections.sinusoidal.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.sinusoidal.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else if ((settings.ptype)
+      .localeCompare('aitoff') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+      ul_xy = Geo.projections.aitoff.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.aitoff.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else if ((settings.ptype)
+      .localeCompare('hammer') === 0) {
+      if (DEBUG) $.writeln("Calculating doc size with " + settings.ptype + " projection");
+      ul_xy = Geo.projections.hammer.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.hammer.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    } else {
+      // fallback to equirectangular
+      if (DEBUG) $.writeln("Calculating doc size with fallback projection");
+
+      ul_xy = Geo.projections.equirectangular.project({
+        lng: ul_lon,
+        lat: ul_lat
+      });
+      lr_xy = Geo.projections.equirectangular.project({
+        lng: lr_lon,
+        lat: lr_lat
+      });
+    }
+    var w = 360;
+    var h = 180;
+    if(settings.projection_type === 0){
+     w = difference(ul_xy.x, lr_xy.x);
+     h = (difference(ul_xy.y, lr_xy.y));
+
+      }else if(settings.projection_type === 1){
+
+     w = difference(ul_xy.x, lr_xy.x);
+     h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
+        }else if(settings.projection_type > 1){
+     w = settings.projections[1].w * difference(ul_xy.x, lr_xy.x);
+     h = settings.projections[1].h * (difference(ul_xy.y, lr_xy.y));
+
+        }
+    if (DEBUG) {
+      $.writeln("zoomed width will be " + w);
+      $.writeln("zoomed height will be " + h);
+    }
+    settings.docWidth = w;
+    settings.docHeight = h;
+
+  }
+  if (settings.new_document) {
     doc = app.documents.add({
-      documentPreferences:{
+      documentPreferences: {
         pageWidth: settings.docWidth,
         pageHeight: settings.docHeight,
-        facingPages:false
-        }});
-  }else{
+        facingPages: false
+      }
+    });
+  } else {
     doc = app.activeDocument;
-    if(app.documents.length === 0){
+    if (app.documents.length === 0) {
       alert("Hm. You need to have a document or set the settings to new_document.\n Right now it seems like you set the settings.new_document to false but don't have any open document. How should i draw something for you? Onto a coster?");
     }
     return "no document available";
     // here should be a check if the pagesize fits our map
   }
+  Geo.Utilities.ind.info.set(doc,
+    settings.boundingBox.bounds,
+    settings.ptype,
+    settings.boundingBox.zoomed);
   return doc;
 };
-
-
 // this is src/idmap/polygon.jsx
 
 /**
@@ -953,76 +1117,7 @@ var polygon_styling = function(doc, polygons) {
 // this is src/idmap/geo.jsx
 // here all the location extraction and path data generation takes place
 
-// var new_location_transformer = function(doc, page, locations) {
-//   //  float x = width * ((BPM_westlon - loc.lon) / (BPM_westlon - BPM_eastlon));
-//   // float y = ( height * ((BPM_northlat - loc.lat)/(BPM_northlat - BPM_southlat)));
-//   // This is still in an experimanteal state
-//   // should be merged into the extendscript.geo lib
-//   var w = doc.documentPreferences.pageWidth;
-//   var h = doc.documentPreferences.pageHeight;
-//   var latlng = {
-//     "lng": locations[0],
-//     "lat": locations[1]
-//   };
-//   //   boundingBox: {
-//   //   ul_lat: 90,
-//   //   ul_lon: -180,
-//   //   lr_lat: -90,
-//   //   lr_lon: 180
-//   // },
-//   var x = w * ((settings.boundingBox.ul_lon - latlng.lng) / (settings.boundingBox.ul_lon - settings.boundingBox.lr_lon));
-//   var y = (h * ((settings.boundingBox.ul_lat - latlng.lat) / (settings.boundingBox.ul_lat - settings.boundingBox.lr_lat)));
-//   if (x < 0) {
-//     x = 0;
-//   } else if (x > w) {
-//     x = w;
-//   }
-//   if (y < 0) {
-//     y = 0;
-//   } else if (y > h) {
-//     y = h;
-//   }
-//   return {
-//     "x": x,
-//     "y": y
-//   };
 
-// };
-
-// var location_transformer = function(doc, page, locations) {
-//   var latlng = {
-//     "lng": locations[0],
-//     "lat": locations[1]
-//   };
-//   var xy = null;
-//   if ((settings.ptype)
-//     .localeCompare('equirectangular') === 0) {
-//     xy = Geo.projections.ind.equirectangular.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('mercator') === 0) {
-//     xy = Geo.projections.ind.mercator.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('gallpeters') === 0) {
-//     xy = Geo.projections.ind.gallpeters.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('hammer') === 0) {
-//     xy = Geo.projections.ind.hammer.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('sinusoidal') === 0) {
-//     xy = Geo.projections.ind.sinusoidal.toIDPage(doc, latlng, page);
-//   } else if ((settings.ptype)
-//     .localeCompare('aitoff') === 0) {
-//     xy = Geo.projections.ind.aitoff.toIDPage(doc, latlng, page);
-//   } else {
-
-//     alert("Could not identify the selected projection type");
-//     return;
-//   } // end of projection type check
-//   // $.writeln(xy.x + " <--x || y--> " +xy.y);
-//   return xy;
-
-// };
-//
 var geo_to_id_generator = function(doc, page, settings) {
 var transformer = Geo.projections.ind.transform;
 var bounds = settings.boundingBox.bounds;
@@ -1040,8 +1135,8 @@ var zoomed = settings.boundingBox.zoomed;
     var coords = country.geometry.coordinates;
     // we need to check if we have polygons or mulitpolygon features
     if (DEBUG) {
-      $.writeln("Country: " + name);
-      $.writeln("Geo Json feature type: " + type);
+      // $.writeln("Country: " + name);
+      // $.writeln("Geo Json feature type: " + type);
 
     }
 
@@ -1126,7 +1221,8 @@ if(layer === null){
    */
   create_objectstyles(doc); // create some object styles
   polygon_styling(doc, polygons); // style them
-  return 'done';
+  return 0;
 };
 
 draw();// now run that thang!
+return 'done';
