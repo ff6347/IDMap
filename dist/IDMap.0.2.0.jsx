@@ -1,6 +1,6 @@
 (function(thisObj) {
 
-/*! IDMap.jsx - v0.2.0 - 2014-05-04 */
+/*! IDMap.jsx - v0.2.0 - 2014-05-07 */
 // Copyright (c)  2014
 // Fabian "fabiantheblind" Morón Zirfas
 // Permission is hereby granted, free of charge, to any
@@ -97,7 +97,7 @@ var settings = {
 
 // mercator zoom test
 settings.boundingBox = {
-   zoomed: true,
+   zoomed: false,
     bounds:{
   ul_lat: 90,
   ul_lon: -180,

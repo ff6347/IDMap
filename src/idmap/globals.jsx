@@ -72,7 +72,7 @@ var settings = {
 
 // mercator zoom test
 settings.boundingBox = {
-   zoomed: true,
+   zoomed: false,
     bounds:{
   ul_lat: 90,
   ul_lon: -180,
