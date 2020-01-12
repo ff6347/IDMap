@@ -24,7 +24,7 @@
   "homepage": "https://github.com/fabiantheblind/IDMap",
   "devDependencies": {
     "grunt": "0.4.5",
-    "load-grunt-tasks": "0.4.0",
+    "load-grunt-tasks": "0.6.0",
     "grunt-contrib-copy": "0.8.2",
     "grunt-contrib-concat": "0.3.0",
     "grunt-wrap": "0.3.1",
