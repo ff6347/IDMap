@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/fabiantheblind/IDMap",
   "devDependencies": {
-    "grunt": "1.1.0",
+    "grunt": "1.2.1",
     "load-grunt-tasks": "5.1.0",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-concat": "1.0.1",
