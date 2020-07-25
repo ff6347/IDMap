@@ -31,6 +31,6 @@
     "grunt-contrib-watch": "0.6.1",
     "grunt-notify": "0.4.5",
     "grunt-contrib-uglify": "5.0.0",
-    "grunt-json-minify": "0.4.0"
+    "grunt-json-minify": "1.1.0"
   }
 }
